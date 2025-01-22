@@ -1,4 +1,4 @@
-import { boolean, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, serial, timestamp, varchar, integer, decimal, pgEnum, text } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
@@ -10,4 +10,30 @@ export const users = pgTable('users', {
     surname: varchar('surname', { length: 30 }),
     phone: varchar('phone', { length: 20 }), // Changed to varchar
     admin: boolean('admin').notNull().default(false)
+});
+
+export const transactionTypeEnum = pgEnum('transactionTypes',["expense", "income"])
+
+export const transactions = pgTable('transactions', {
+    id: serial('id').primaryKey(),
+    user_id: integer('user_id')
+        .notNull()
+        .references(() => users.id),
+    amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+    category_id: integer('category_id')
+        .notNull()
+        .references(() => categories.id),
+    type: transactionTypeEnum('type').notNull(),
+    description: text('description'),
+    date: timestamp('date').notNull().defaultNow(),
+    createdAt: timestamp('createdAt').defaultNow()
+});
+
+
+export const categories = pgTable('categories', {
+    id: serial('id').primaryKey(),
+    user_id: integer('user_id')
+        .references(() => users.id).notNull(),
+    name: varchar('name', { length: 50 }).notNull(),
+    description: text('description'),
 });
