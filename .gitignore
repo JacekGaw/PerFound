@@ -1,0 +1,13 @@
+.env
+
+node_modules
+
+dist
+backup/backup_*
+build
+
+.env.*
+
+package-lock.json
+
+drizzle
