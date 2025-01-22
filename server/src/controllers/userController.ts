@@ -1,4 +1,4 @@
-import { Request, Response, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import {
   getUsersFromDB,
   createUserInDB,

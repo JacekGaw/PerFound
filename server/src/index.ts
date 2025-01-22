@@ -6,6 +6,7 @@ import { runDB } from "./database/db.js";
 import userRouter from "./routes/userRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import transactionsRouter from './routes/transactionRoutes.js'
 
 runDB();
 
@@ -43,7 +44,9 @@ app.get("/", (req, res) => {
 app.use(errorHandler);
 
 app.use("/api/", userRouter);
+app.use("/api/", transactionsRouter);
 app.use("/auth/", authRouter);
+
 
 
 app.listen(PORT, () => {

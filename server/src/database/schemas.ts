@@ -16,11 +16,11 @@ export const transactionTypeEnum = pgEnum('transactionTypes',["expense", "income
 
 export const transactions = pgTable('transactions', {
     id: serial('id').primaryKey(),
-    user_id: integer('user_id')
+    userId: integer('user_id')
         .notNull()
         .references(() => users.id),
     amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
-    category_id: integer('category_id')
+    categoryId: integer('category_id')
         .notNull()
         .references(() => categories.id),
     type: transactionTypeEnum('type').notNull(),
@@ -32,7 +32,7 @@ export const transactions = pgTable('transactions', {
 
 export const categories = pgTable('categories', {
     id: serial('id').primaryKey(),
-    user_id: integer('user_id')
+    userId: integer('user_id')
         .references(() => users.id).notNull(),
     name: varchar('name', { length: 50 }).notNull(),
     description: text('description'),
