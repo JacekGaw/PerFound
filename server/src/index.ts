@@ -7,6 +7,8 @@ import userRouter from "./routes/userRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import transactionsRouter from './routes/transactionRoutes.js'
+import accountsRouter from './routes/accountRoutes.js'
+import categoriesRouter from './routes/categoryRoutes.js'
 
 runDB();
 
@@ -45,6 +47,8 @@ app.use(errorHandler);
 
 app.use("/api/", userRouter);
 app.use("/api/", transactionsRouter);
+app.use("/api/", accountsRouter);
+app.use("/api/", categoriesRouter);
 app.use("/auth/", authRouter);
 
 

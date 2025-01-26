@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import db from "../database/db.js";
 import { transactions, categories } from "../database/schemas.js";
 
+export type NewTransactionType = typeof transactions.$inferInsert;
 
 
 export const getTransactionsByUserId = async (userId: number) => {
@@ -23,6 +24,16 @@ export const getTransactionsByUserId = async (userId: number) => {
     return transactionsArr;
   } catch (err) {
     console.error("Error getting transactions by user id from db: ", err);
+    throw err;
+  }
+};
+
+export const addNewTransactionToDb = async (data: NewTransactionType) => {
+  try {
+    const transaction = db.insert(transactions).values(data).returning();
+    return transaction;
+  } catch (err) {
+    console.error("Error adding transaction to db: ", err);
     throw err;
   }
 };

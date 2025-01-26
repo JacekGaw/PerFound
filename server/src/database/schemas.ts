@@ -36,7 +36,7 @@ export const transactions = pgTable("transactions", {
     .notNull()
     .references(() => accounts.id),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  categoryId: integer("category_id")
+  categoryId: integer("categoryId")
     .notNull()
     .references(() => categories.id),
   type: transactionTypeEnum("type").notNull(),
@@ -47,7 +47,7 @@ export const transactions = pgTable("transactions", {
 
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
+  userId: integer("userId")
     .references(() => users.id)
     .notNull(),
   name: varchar("name", { length: 50 }).notNull(),
