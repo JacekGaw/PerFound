@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRoot from "./pages/dashboard/DashboardRoot";
 import MainRoot from "./pages/main/MainRoot";
 import Dashboard from "./pages/dashboard/Dashboard";
+import Onboarding from "./pages/onboarding/Onboarding";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -27,9 +28,13 @@ const App = () => {
           element: <SignUp />,
         },
         {
-          path: "/dashboard",
+          path: "/",
           element: <ProtectedRoute />,
           children: [
+            {
+              path: "/onboarding/",
+              element: <Onboarding />
+            },
             {
               path: "/dashboard",
               element: <DashboardRoot />,
@@ -37,7 +42,8 @@ const App = () => {
                 {
                   path: "/dashboard/",
                   element: <Dashboard />
-                }
+                },
+                
               ]
             },
             

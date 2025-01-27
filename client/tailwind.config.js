@@ -25,4 +25,7 @@ export default {
   plugins: [
     '@tailwindcss/typography',
   ],
+  corePlugins: {
+    preflight: true
+  },
 }

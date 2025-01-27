@@ -21,6 +21,7 @@ interface UserContextProps {
     userId?: number
   ) => Promise<{ status: string; text: string }>;
   deleteUser: (userId?: number) => Promise<{ status: string; text: string }>;
+  checkUserAccount: (userId: number) => Promise<{ status: string; text: string }>;
 }
 
 export const UserContext = createContext<UserContextProps | undefined>(
@@ -31,7 +32,7 @@ export const useUserCtx = (): UserContextProps => {
   const context = useContext(UserContext);
   if (context === undefined) {
     throw new Error(
-      "Project Context must be used within an ProjectContextProvider"
+      "User Context must be used within an UserContextProvider"
     );
   }
   return context;
@@ -131,12 +132,44 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  const checkUserAccount = async (userId: number) => {
+    try {
+      const response = await api.get<{ message: string; accounts: any[] }>(
+        `/api/accounts/${userId}`
+      );
+  
+      const userAccounts = response.data;
+  
+      if (userAccounts.accounts.length > 0) {
+        console.log("User accounts:", userAccounts.accounts);
+        return {
+          status: "Success",
+          text: "User has accounts.",
+          accounts: userAccounts.accounts,
+        };
+      }
+      return {
+        status: "Error",
+        text: "User has no accounts.",
+      };
+    } catch (err: any) {
+      console.error(err);
+      const errorMessage =
+        err.response?.data?.message || "An unknown error occurred.";
+      return {
+        status: "Error",
+        text: errorMessage,
+      };
+    }
+  };
+
   const ctxValue = {
     user,
     changeUser,
     userInfo,
     changeUserPassword,
     deleteUser,
+    checkUserAccount
   };
 
   return (

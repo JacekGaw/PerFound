@@ -2,6 +2,9 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
 import Spinner from "./UI/Spinner";
+import { UserProvider } from "../store/UserContext";
+import { AccountsProvider } from "../store/AccountContext";
+
 
 const ProtectedRoute: React.FC<object> = () => {
   const authContext = useAuth();
@@ -19,7 +22,12 @@ const ProtectedRoute: React.FC<object> = () => {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return <Outlet />;
+
+  return (<UserProvider>
+        <AccountsProvider>
+            <Outlet />
+        </AccountsProvider>
+      </UserProvider>)
 };
 
 export default ProtectedRoute;

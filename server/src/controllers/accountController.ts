@@ -1,5 +1,10 @@
 import { RequestHandler } from "express";
-import { getAccountsByUserId, createUserAccountInDb, NewAccountType } from "../services/accountService.js";
+import {
+  getAccountsByUserId,
+  createUserAccountInDb,
+  NewAccountType,
+} from "../services/accountService.js";
+import { CustomRequest } from "../middleware/protectedRoute.js";
 
 export const getUserAccounts: RequestHandler = async (req, res) => {
   try {
@@ -17,14 +22,22 @@ export const getUserAccounts: RequestHandler = async (req, res) => {
   }
 };
 
-export const addUserAccount: RequestHandler = async (req, res) => {
+export const addUserAccount: RequestHandler = async (
+  req: CustomRequest,
+  res
+) => {
   try {
-    const userId = parseInt(req.params.userId);
+    if (!req.user) {
+      return res.status(401).json({
+        message: "No decoded user object in request",
+      });
+    }
+    const userId = req.user.id;
     const data: NewAccountType = req.body;
-    data.userId = userId;
+    data.userId = parseInt(userId);
     const userNewAccount = await createUserAccountInDb(data);
     console.log("Creating user account", userNewAccount);
-    res.status(200).json({
+    return res.status(200).json({
       message: "Creating user new account",
       accounts: userNewAccount,
     });
@@ -35,12 +48,3 @@ export const addUserAccount: RequestHandler = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
