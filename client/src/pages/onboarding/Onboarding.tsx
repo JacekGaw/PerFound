@@ -1,14 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../store/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import Button from "../../components/UI/Button";
 import { useAccountsCtx } from "../../store/AccountContext";
+import Spinner from "../../components/UI/Spinner";
 
 const Onboarding: React.FC = () => {
   const { user } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const {addUserAccount} = useAccountsCtx();
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
+  const {addUserAccount, getUserAccounts} = useAccountsCtx();
+  const [checkingAccount, setCheckingAccount] = useState(true);
+  const [hasAccount, setHasAccount] = useState<boolean | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+      const checkIfUserHaveAccount = async () => {
+        if (user) {
+          try {
+            const response = await getUserAccounts(user.id);
+            console.log(response)
+            setHasAccount(response.status === "Success");
+          } catch (err) {
+            console.error(err);
+            setHasAccount(false);
+          } finally {
+            setCheckingAccount(false);
+          }
+        } else {
+          setCheckingAccount(false);
+        }
+      };
+  
+      checkIfUserHaveAccount();
+    }, []);
+
+    if (checkingAccount) {
+        return <div className="w-full h-screen flex justify-center items-center"><Spinner /></div>;
+      }
+    
+      if (!user) {
+        return <Navigate to="/login" />;
+      }
+    
+      if (hasAccount === true) {
+        return <Navigate to="/dashboard" replace />;
+      }
 
   const popularCurrencyCodes = [
     "PLN",
@@ -27,6 +64,7 @@ const Onboarding: React.FC = () => {
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
+    setButtonDisabled(true);
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string | null;
     const type = formData.get("type") as string | null;
@@ -41,9 +79,10 @@ const Onboarding: React.FC = () => {
 
     const result = await addUserAccount(data);
     if(result.status == "Success") {
-        navigate("/dashboard");
+        return navigate("/dashboard");
     }    
-    setErrorMessage(result.text)
+    setErrorMessage(result.text);
+    setButtonDisabled(true);
   };
 
   return (
@@ -79,6 +118,7 @@ const Onboarding: React.FC = () => {
               id="nameInput"
               name="name"
               placeholder="Name"
+              disabled={buttonDisabled}
               required
               // className="bg-lightest-blue dark:bg-darkest-blue border border-lightest-blue dark:border-black-blue hover:border-dark-blue dark:hover:border-slate-200 transition-all duration-200 rounded-md p-3 text-black dark:text-white text-sm "
               className="bg-gray-50 border  border-gray-300 hover:border-gray-500 w-1/2 transition-all duration-200 rounded-md p-3 text-black text-sm sm:text-base "
@@ -89,6 +129,7 @@ const Onboarding: React.FC = () => {
               name="type"
               placeholder="Type (e.g. checking)"
               required
+              disabled={buttonDisabled}
               // className="bg-lightest-blue dark:bg-darkest-blue border border-lightest-blue dark:border-black-blue hover:border-dark-blue dark:hover:border-slate-200 transition-all duration-200 rounded-md p-3 text-black dark:text-white text-sm "
               className="bg-gray-50 border w-1/2  border-gray-300 hover:border-gray-500 transition-all duration-200 rounded-md p-3 text-black text-sm sm:text-base "
             />
@@ -102,6 +143,7 @@ const Onboarding: React.FC = () => {
               placeholder="Current balance"
               min={0}
               required
+              disabled={buttonDisabled}
               // className="bg-lightest-blue dark:bg-darkest-blue border border-lightest-blue dark:border-black-blue hover:border-dark-blue dark:hover:border-slate-200 transition-all duration-200 rounded-md p-3 text-black dark:text-white text-sm "
               className="bg-gray-50 border flex-1 border-gray-300 hover:border-gray-500 transition-all duration-200 rounded-md p-3 text-black text-sm sm:text-base "
             />
@@ -118,7 +160,7 @@ const Onboarding: React.FC = () => {
             </select>
           </div>
           <p className="text-sm text-red-600">{errorMessage}</p>
-          <Button type="submit" className="self-end">
+          <Button disabled={buttonDisabled} type="submit" className="self-end">
             Save
           </Button>
         </form>

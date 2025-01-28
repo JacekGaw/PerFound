@@ -64,4 +64,5 @@ export const accounts = pgTable("accounts", {
   balance: decimal("balance", { precision: 12, scale: 2 }).notNull(),
   currencyCode: varchar("currencyCode", { length: 3 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow(),
+  main: boolean("main").notNull().default(false)
 });

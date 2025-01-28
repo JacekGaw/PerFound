@@ -14,11 +14,13 @@ import {
     balance: string; 
     currencyCode: string;
     createdAt: Date;
+    main: boolean
   }
   
 
   interface AccountsContextProps {
     userAccounts: Account[];
+    choosenMainAccount: Account | undefined;
     getUserAccounts: (userId: number) => Promise<{ status: string; text: string }>;
     addUserAccount: (data: Partial<Account>) => Promise<{ status: string; text: string }>
   }
@@ -41,6 +43,7 @@ import {
     children,
   }) => {
     const [userAccounts, setUserAccounts] = useState<Account[]>([]);
+    const [choosenMainAccount, setChoosenMainAccount] = useState<Account | undefined>(undefined);
   
   
     const getUserAccounts = async (userId: number) => {
@@ -53,6 +56,7 @@ import {
          throw new Error("No accounts for this user")
         }   
         setUserAccounts(userAccounts.accounts);
+        setChoosenMainAccount(userAccounts.accounts.find(item => item.main == true));
         return {
             status: "Success",
             text: "Set user accounts",
@@ -94,7 +98,8 @@ import {
     const ctxValue = {
     userAccounts,
     getUserAccounts,
-    addUserAccount
+    addUserAccount,
+    choosenMainAccount
     };
   
     return (

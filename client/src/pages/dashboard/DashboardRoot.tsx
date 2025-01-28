@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../store/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAccountsCtx } from "../../store/AccountContext";
+import Spinner from "../../components/UI/Spinner";
 
 const DashboardRoot: React.FC = () => {
   const { isLoading, user } = useAuth();
@@ -31,7 +32,7 @@ const DashboardRoot: React.FC = () => {
   }, []);
 
   if (isLoading || checkingAccount) {
-    return <div>Loading...</div>;
+    return <div className="w-full h-screen flex justify-center items-center"><Spinner /></div>;
   }
 
   if (!user) {
@@ -45,7 +46,7 @@ const DashboardRoot: React.FC = () => {
   return (
     <>
       <div className="flex">
-        <main className="p-5 w-full flex justify-center">
+        <main className="max-w-screen-lg mx-auto p-10 w-full flex justify-center">
           <Outlet />
         </main>
       </div>
