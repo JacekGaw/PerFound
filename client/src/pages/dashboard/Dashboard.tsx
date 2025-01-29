@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect} from "react";
 import { useUserCtx } from "../../store/UserContext";
 import logoutIcon from "../../assets/img/logout.svg";
-import { motion } from "framer-motion";
 import { useAuth } from "../../store/AuthContext";
 import AccountCard from "./AccoundCard";
 import Button from "../../components/UI/Button";
+
 
 const Dashboard: React.FC = () => {
   const { user } = useUserCtx();
@@ -30,3 +30,6 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
+
+

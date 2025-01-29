@@ -6,9 +6,15 @@ import {
 } from "../services/accountService.js";
 import { CustomRequest } from "../middleware/protectedRoute.js";
 
-export const getUserAccounts: RequestHandler = async (req, res) => {
+export const getUserAccounts: RequestHandler = async (req: CustomRequest, res) => {
   try {
-    const userAccounts = await getAccountsByUserId(parseInt(req.params.userId));
+    if (!req.user) {
+      return res.status(401).json({
+        message: "No decoded user object in request",
+      });
+    }
+    const userId = req.user.id;
+    const userAccounts = await getAccountsByUserId(parseInt(userId));
     console.log("Getting user accounts", userAccounts);
     res.status(200).json({
       message: "Getting user accounts",

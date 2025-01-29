@@ -3,6 +3,8 @@ import {
     createContext,
     useState,
     useContext,
+    Dispatch,
+    SetStateAction
   } from "react";
   import api from "../api/api";
 
@@ -21,7 +23,9 @@ import {
   interface AccountsContextProps {
     userAccounts: Account[];
     choosenMainAccount: Account | undefined;
-    getUserAccounts: (userId: number) => Promise<{ status: string; text: string }>;
+    getUserAccounts: () => Promise<{ status: string; text: string }>;
+    setUserAccounts: Dispatch<SetStateAction<Account[]>>;
+    setChoosenMainAccount: Dispatch<SetStateAction<Account | undefined>>;
     addUserAccount: (data: Partial<Account>) => Promise<{ status: string; text: string }>
   }
   
@@ -46,10 +50,10 @@ import {
     const [choosenMainAccount, setChoosenMainAccount] = useState<Account | undefined>(undefined);
   
   
-    const getUserAccounts = async (userId: number) => {
+    const getUserAccounts = async () => {
       try {
         const response = await api.get<{ message: string; accounts: Account[] }>(
-          `/api/accounts/${userId}`
+          `/api/accounts`
         );
         const userAccounts = response.data;     
         if(userAccounts.accounts.length == 0) {
@@ -99,6 +103,8 @@ import {
     userAccounts,
     getUserAccounts,
     addUserAccount,
+    setUserAccounts,
+    setChoosenMainAccount,
     choosenMainAccount
     };
   

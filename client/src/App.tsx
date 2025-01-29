@@ -4,7 +4,7 @@ import SignUp from "./pages/auth/SignUp";
 import ErrorPage from "./pages/ErrorPage";
 import { AuthProvider } from "./store/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DashboardRoot from "./pages/dashboard/DashboardRoot";
+import DashboardRoot, {loader as dashboardRootLoader} from "./pages/dashboard/DashboardRoot";
 import MainRoot from "./pages/main/MainRoot";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Onboarding from "./pages/onboarding/Onboarding";
@@ -38,12 +38,12 @@ const App = () => {
             {
               path: "/dashboard",
               element: <DashboardRoot />,
+              loader: dashboardRootLoader,
               children: [
                 {
-                  path: "/dashboard/",
+                  path: "/dashboard",
                   element: <Dashboard />
                 },
-                
               ]
             },
             
