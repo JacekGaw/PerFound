@@ -5,9 +5,8 @@ import moreIcon from "../../assets/img/vertical_dots.svg";
 import { AnimatePresence, motion } from "framer-motion";
 
 const AccountCard: React.FC = () => {
-  const { userAccounts, choosenMainAccount } = useAccountsCtx();
+  const { userAccounts } = useAccountsCtx();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  console.log(userAccounts, choosenMainAccount)
   const account = userAccounts && userAccounts.length > 0 ? userAccounts[0] : null;
 
   if (!account) {

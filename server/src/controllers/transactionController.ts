@@ -1,16 +1,34 @@
 import { RequestHandler } from "express";
-import { getTransactionsByUserId, addNewTransactionToDb, NewTransactionType } from "../services/transactionsService.js"
-
+import { getTransactionsFromDB, addNewTransactionToDb, NewTransactionType } from "../services/transactionsService.js"
+import { CustomRequest } from "../middleware/protectedRoute.js";
 
 
 
 export const getUserTransactions: RequestHandler = async (req, res) => {
   try {
-    const userTransactions = await getTransactionsByUserId(parseInt(req.params.userId));
+    const userTransactions = await getTransactionsFromDB(parseInt(req.params.userId));
     console.log("Getting user transactions", userTransactions);
     res.status(200).json({
       message: "Getting user transactions",
       transactions: userTransactions,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error",
+      error: (err as Error).message || "Unknown error",
+    });
+  }
+};
+
+export const getAccountTransactions: RequestHandler = async (req: CustomRequest, res) => {
+  try {
+    const accountName = req.params.accountName;
+    const userId = parseInt(req.user!.id)
+    const accountTransactions = await getTransactionsFromDB(userId, accountName);
+    console.log("Getting account transactions", accountTransactions);
+    res.status(200).json({
+      message: "Getting account transactions",
+      transactions: accountTransactions,
     });
   } catch (err) {
     res.status(500).json({

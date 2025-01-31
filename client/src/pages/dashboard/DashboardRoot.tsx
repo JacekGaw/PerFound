@@ -3,20 +3,28 @@ import { useAuth } from "../../store/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 import Spinner from "../../components/UI/Spinner";
 import api from "../../api/api";
-import { LoaderFunction, redirect, useLoaderData } from "react-router-dom";
+import { LoaderFunction, redirect, useLoaderData, useNavigate } from "react-router-dom";
 import { Account, useAccountsCtx } from "../../store/AccountContext";
 
 const DashboardRoot: React.FC = () => {
   const { isLoading, user } = useAuth();
-  const {setUserAccounts, setChoosenMainAccount} = useAccountsCtx();
+  const {setUserAccounts, setChoosenAccount} = useAccountsCtx();
   const accounts = useLoaderData() as Account[]
   console.log("ACCOUNTS", accounts)
+  const navigate = useNavigate();
 
   useEffect(() => {
     if(accounts) {
       const mainAccount = accounts.find((acc) => acc.main == true);
-      mainAccount && setChoosenMainAccount(mainAccount);
       setUserAccounts(accounts)
+      if(mainAccount) {
+        setChoosenAccount(mainAccount);
+        navigate(`/dashboard/${mainAccount.name}`)
+      }
+      else {
+        setChoosenAccount(accounts[0]);
+        navigate(`/dashboard/${accounts[0].name}`)
+      } 
     }
   }, [])
 
@@ -53,7 +61,7 @@ export const loader: LoaderFunction = async () => {
     if(!accounts) {
       return null;
     }
-    return accounts;
+    return accounts
   } catch (err: any) {
     console.error(err)
     return null;

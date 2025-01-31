@@ -19,14 +19,28 @@ import {
     main: boolean
   }
   
+  export interface Transaction {
+    id: number;
+    userId: number;
+    amount: string;
+    categoryId: number;
+    type: string;
+    description: string | null;
+    date: string;
+    createdAt: string;
+    categoryName: string;
+    accountName: string;
+  }
 
   interface AccountsContextProps {
     userAccounts: Account[];
-    choosenMainAccount: Account | undefined;
+    choosenAccount: Account | undefined;
+    transactions: Transaction[] | null;
     getUserAccounts: () => Promise<{ status: string; text: string }>;
     setUserAccounts: Dispatch<SetStateAction<Account[]>>;
-    setChoosenMainAccount: Dispatch<SetStateAction<Account | undefined>>;
+    setChoosenAccount: Dispatch<SetStateAction<Account | undefined>>;
     addUserAccount: (data: Partial<Account>) => Promise<{ status: string; text: string }>
+    setTransactions: Dispatch<SetStateAction<Transaction[] | null>>;
   }
   
   export const AccountsContext = createContext<AccountsContextProps | undefined>(
@@ -47,7 +61,8 @@ import {
     children,
   }) => {
     const [userAccounts, setUserAccounts] = useState<Account[]>([]);
-    const [choosenMainAccount, setChoosenMainAccount] = useState<Account | undefined>(undefined);
+    const [choosenAccount, setChoosenAccount] = useState<Account | undefined>(undefined);
+    const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   
   
     const getUserAccounts = async () => {
@@ -60,7 +75,7 @@ import {
          throw new Error("No accounts for this user")
         }   
         setUserAccounts(userAccounts.accounts);
-        setChoosenMainAccount(userAccounts.accounts.find(item => item.main == true));
+        setChoosenAccount(userAccounts.accounts.find(item => item.main == true));
         return {
             status: "Success",
             text: "Set user accounts",
@@ -101,11 +116,13 @@ import {
   
     const ctxValue = {
     userAccounts,
+    transactions,
+    setTransactions,
     getUserAccounts,
     addUserAccount,
     setUserAccounts,
-    setChoosenMainAccount,
-    choosenMainAccount
+    setChoosenAccount,
+    choosenAccount
     };
   
     return (

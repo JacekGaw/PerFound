@@ -1,26 +1,35 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import db from "../database/db.js";
-import { transactions, categories } from "../database/schemas.js";
+import { transactions, categories, accounts } from "../database/schemas.js";
 
 export type NewTransactionType = typeof transactions.$inferInsert;
 
 
-export const getTransactionsByUserId = async (userId: number) => {
+export const getTransactionsFromDB = async (userId: number, accountName?: string) => {
   try {
-    const transactionsArr = db.select({
-        id: transactions.id,
-        userId: transactions.userId,
-        amount: transactions.amount,
-        categoryId: transactions.categoryId,
-        type: transactions.type,
-        description: transactions.description,
-        date: transactions.date,
-        createdAt: transactions.createdAt,
-        categoryName: categories.name, // Add category name
-      })
-      .from(transactions)
-      .leftJoin(categories, eq(transactions.categoryId, categories.id)) // Perform a left join with categories
-      .where(eq(transactions.userId, userId)); // Filter by userId
+    const baseQuery = db.select({
+      id: transactions.id,
+      userId: transactions.userId,
+      amount: transactions.amount,
+      categoryId: transactions.categoryId,
+      type: transactions.type,
+      description: transactions.description,
+      date: transactions.date,
+      createdAt: transactions.createdAt,
+      categoryName: categories.name,
+      accountName: accounts.name,
+    })
+    .from(transactions)
+    .leftJoin(categories, eq(transactions.categoryId, categories.id))
+    .leftJoin(accounts, eq(transactions.accountId, accounts.id))
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        accountName ? eq(accounts.name, accountName) : undefined
+      )
+    );
+
+    const transactionsArr = await baseQuery;
     return transactionsArr;
   } catch (err) {
     console.error("Error getting transactions by user id from db: ", err);

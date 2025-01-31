@@ -4,12 +4,23 @@ import logoutIcon from "../../assets/img/logout.svg";
 import { useAuth } from "../../store/AuthContext";
 import AccountCard from "./AccoundCard";
 import Button from "../../components/UI/Button";
+import { LoaderFunction, LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import api from "../../api/api";
+import { Transaction, useAccountsCtx } from "../../store/AccountContext";
 
 
 const Dashboard: React.FC = () => {
   const { user } = useUserCtx();
   const { logOut } = useAuth();
+  const { setTransactions } = useAccountsCtx()
+  const transactionsArr = useLoaderData() as Transaction[];
 
+  useEffect(() => {
+    console.log("TRANSACTIONS", transactionsArr);
+    setTransactions(transactionsArr)
+  },[transactionsArr])
+
+  console.log("hello")
   return (
     <>
       <div className="w-full flex flex-col justify-center items-center gap-5">
@@ -30,6 +41,23 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
+export const loader: LoaderFunction = async ({params}: LoaderFunctionArgs) => {
+  const accountName = params.accountName;
+  try {
+    const response = await api.get<{ message: string; transactions: Transaction[] }>(
+      `/api/transactions/${accountName}`
+    );
+    const transactions = response.data.transactions; 
+    if(!transactions) {
+      return null;
+    }
+    return transactions
+  } catch (err: any) {
+    console.error(err)
+    return null;
+  }
+}
 
 
 

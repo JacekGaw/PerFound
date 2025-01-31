@@ -6,7 +6,7 @@ import { AuthProvider } from "./store/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRoot, {loader as dashboardRootLoader} from "./pages/dashboard/DashboardRoot";
 import MainRoot from "./pages/main/MainRoot";
-import Dashboard from "./pages/dashboard/Dashboard";
+import Dashboard, {loader as transactionsLoader} from "./pages/dashboard/Dashboard";
 import Onboarding from "./pages/onboarding/Onboarding";
 
 const App = () => {
@@ -41,12 +41,12 @@ const App = () => {
               loader: dashboardRootLoader,
               children: [
                 {
-                  path: "/dashboard",
-                  element: <Dashboard />
+                  path: "/dashboard/:accountName",
+                  element: <Dashboard />,
+                  loader: transactionsLoader
                 },
               ]
             },
-            
           ]
         }
       ],
