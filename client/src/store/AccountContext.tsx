@@ -40,6 +40,7 @@ import {
     setUserAccounts: Dispatch<SetStateAction<Account[]>>;
     setChoosenAccount: Dispatch<SetStateAction<Account | undefined>>;
     addUserAccount: (data: Partial<Account>) => Promise<{ status: string; text: string }>
+    addUserCategories: (categories: string[]) => Promise<{ status: string; text: string }>
     setTransactions: Dispatch<SetStateAction<Transaction[] | null>>;
   }
   
@@ -81,7 +82,7 @@ import {
             text: "Set user accounts",
           };
       } catch (err: any) {
-        console.error(err);
+        console.log(err);
         const errorMessage =
           err.response?.data?.message || "An unknown error occurred.";
         return {
@@ -113,6 +114,29 @@ import {
           };
         }
       };
+
+
+      const addUserCategories = async (data: string[]) => {
+        try {
+          const response = await api.post<{ message: string; accounts: Account[] }>(
+            `/api/categories`, data
+          );
+          const newCategories = response.data;        
+          console.log(newCategories)
+          return {
+              status: "Success",
+              text: "Added user categories",
+            };
+        } catch (err: any) {
+          console.error(err);
+          const errorMessage =
+            err.response?.data?.message || "An unknown error occurred.";
+          return {
+            status: "Error",
+            text: errorMessage,
+          };
+        }
+      };
   
     const ctxValue = {
     userAccounts,
@@ -122,6 +146,7 @@ import {
     addUserAccount,
     setUserAccounts,
     setChoosenAccount,
+    addUserCategories,
     choosenAccount
     };
   

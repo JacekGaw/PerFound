@@ -4,48 +4,86 @@ import { Link, useNavigate, Navigate } from "react-router-dom";
 import Button from "../../components/UI/Button";
 import { useAccountsCtx } from "../../store/AccountContext";
 import Spinner from "../../components/UI/Spinner";
+import homeIcon from "../../assets/img/House Chimney Icon.svg";
+import carIcon from "../../assets/img/Car Icon.svg";
+import travelIcon from "../../assets/img/Earth Americas Icon.svg";
+import groceriesIcon from "../../assets/img/Shopping Cart Icon.svg";
+import sportIcon from "../../assets/img/Skiing Icon.svg";
+import clothingIcon from "../../assets/img/Solid Shirt Icon.svg";
+import { motion } from "framer-motion";
+
+const categories: { name: string; icon: string }[] = [
+  {
+    name: "Home",
+    icon: homeIcon,
+  },
+  {
+    name: "Car",
+    icon: carIcon,
+  },
+  {
+    name: "Travels",
+    icon: travelIcon,
+  },
+  {
+    name: "Groceries",
+    icon: groceriesIcon,
+  },
+  {
+    name: "Sports",
+    icon: sportIcon,
+  },
+  {
+    name: "Clothing",
+    icon: clothingIcon,
+  },
+];
 
 const Onboarding: React.FC = () => {
   const { user } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [choosenCategories, setChoosenCategories] = useState<number[]>([]);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
-  const {addUserAccount, getUserAccounts} = useAccountsCtx();
+  const { addUserAccount, addUserCategories, getUserAccounts } = useAccountsCtx();
   const [checkingAccount, setCheckingAccount] = useState(true);
   const [hasAccount, setHasAccount] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-      const checkIfUserHaveAccount = async () => {
-        if (user) {
-          try {
-            const response = await getUserAccounts(user.id);
-            console.log(response)
-            setHasAccount(response.status === "Success");
-          } catch (err) {
-            console.error(err);
-            setHasAccount(false);
-          } finally {
-            setCheckingAccount(false);
-          }
-        } else {
+    const checkIfUserHaveAccount = async () => {
+      if (user) {
+        try {
+          const response = await getUserAccounts();
+          setHasAccount(response.status === "Success");
+        } catch (err) {
+          console.error(err);
+          setHasAccount(false);
+        } finally {
           setCheckingAccount(false);
         }
-      };
-  
-      checkIfUserHaveAccount();
-    }, []);
+      } else {
+        setCheckingAccount(false);
+      }
+    };
 
-    if (checkingAccount) {
-        return <div className="w-full h-screen flex justify-center items-center"><Spinner /></div>;
-      }
-    
-      if (!user) {
-        return <Navigate to="/login" />;
-      }
-    
-      if (hasAccount === true) {
-        return <Navigate to="/dashboard" replace />;
-      }
+    checkIfUserHaveAccount();
+  }, []);
+
+  if (checkingAccount) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  if (hasAccount === true) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const popularCurrencyCodes = [
     "PLN",
@@ -75,15 +113,27 @@ const Onboarding: React.FC = () => {
       setErrorMessage("Name, type, balance and currency code are required.");
       return;
     }
+    const categoriesToAdd: string[] = categories.filter((_, index) =>
+      choosenCategories.includes(index)
+    ).map((item) => item.name);
     const data = { name, type, balance, currencyCode };
-
     const result = await addUserAccount(data);
-    if(result.status == "Success") {
+    if (result.status == "Success") {
+      const catResult = await addUserCategories([...categoriesToAdd, "General"]);
+      if (catResult.status == "Success") {
         return navigate("/dashboard");
-    }    
+      }
+    }
     setErrorMessage(result.text);
     setButtonDisabled(true);
   };
+
+  const handleToggleCategory = (index: number) => {
+    setChoosenCategories((prev) =>
+      prev.includes(index) ? prev.filter(item => item !== index) : [...prev, index]
+    );
+  };
+  
 
   return (
     <section className="w-full min-h-screen flex flex-col justify-center items-center p-5 sm:p-5">
@@ -160,6 +210,38 @@ const Onboarding: React.FC = () => {
             </select>
           </div>
           <p className="text-sm text-red-600">{errorMessage}</p>
+          <p className="border-t py-5 text-justify text-sm sm:text-base ">
+            You can also choose what type of expenses categories you want to
+            add. Remember that you can always just set it later. If you don't
+            choose, we will just add one category "expenses" by default.
+          </p>
+          <div className=" gap-2 grid grid-cols-3">
+            {categories.map((category, index) => {
+              return (
+                <motion.li
+                initial={{scale: 1, border: "1px solid #aaa"}}
+                whileHover={{scale: 1.05, zIndex:  100}}
+                animate={{
+                  borderColor: choosenCategories.includes(index) ? "111" : "#aaa",
+                  backgroundColor: choosenCategories.includes(index) ? "#CCEEFF" : "#fff",
+                }}
+                onClick={() => handleToggleCategory(index)}
+                  key={category.name}
+                  className={` w-full p-5 flex flex-col gap-5 bg-white  rounded-md justify-center items-center`}
+                >
+                  <motion.img
+                  initial={{opacity: 0.5}}
+                  whileHover={{opacity: 1, zIndex:  100}}
+                  animate={choosenCategories.includes(index) ? {opacity: 1} : {opacity: 0.5}}
+                    src={category.icon}
+                    className={`h-12  w-auto`}
+                  />
+                  <p className="font-[600] text-base">{category.name}</p>
+                </motion.li>
+              );
+            })}
+          </div>
+
           <Button disabled={buttonDisabled} type="submit" className="self-end">
             Save
           </Button>

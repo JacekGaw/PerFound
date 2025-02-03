@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { addCategoriesToDb, getUserCategoriesFromDb, NewCategoryType } from "../services/categoryService.js";
-
+import { CustomRequest } from "../middleware/protectedRoute.js";
 
 export const getUserCategories: RequestHandler = async (req, res) => {
   try {
@@ -18,10 +18,21 @@ export const getUserCategories: RequestHandler = async (req, res) => {
   }
 };
 
-export const addCategories: RequestHandler = async (req, res) => {
+export const addCategories: RequestHandler = async (req: CustomRequest, res) => {
   try {
-    const data: NewCategoryType[] = req.body;
-    const newCategories = await addCategoriesToDb(data);
+    if (!req.user) {
+      return res.status(401).json({
+        message: "No decoded user object in request",
+      });
+    }
+    const userId = parseInt(req.user.id);
+    const data: string[] = req.body;
+    const dataToAdd = data.map(name => ({
+      name,
+      userId,
+    }));
+    console.log(dataToAdd);
+    const newCategories = await addCategoriesToDb(dataToAdd);
     console.log("Creating categories", newCategories);
     res.status(200).json({
       message: "Created categories",
